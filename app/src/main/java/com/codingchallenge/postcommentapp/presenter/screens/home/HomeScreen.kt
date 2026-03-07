@@ -1,5 +1,6 @@
 package com.codingchallenge.postcommentapp.presenter.screens.home
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
@@ -15,7 +16,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Logout
@@ -32,10 +35,13 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.PrimaryTabRow
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SwipeToDismissBox
+import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -55,6 +61,8 @@ fun HomeScreen(
     viewModel: HomeScreenViewModel
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val postsListState = rememberLazyListState()
+    val favoritesListState = rememberLazyListState()
     Scaffold(
         modifier = Modifier
             .statusBarsPadding()
@@ -110,49 +118,26 @@ fun HomeScreen(
                 if (uiState.isLoading) {
                     CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
                 } else {
-                    val items = when (uiState.selectedTab) {
-                        HomeTab.POSTS -> uiState.posts
-                        HomeTab.FAVORITES -> uiState.favorites
-                    }
-                    if (items.isNotEmpty()) {
-                        LazyColumn(
-                            modifier = Modifier.fillMaxSize(),
-                            contentPadding = PaddingValues(16.dp),
-                            verticalArrangement = Arrangement.spacedBy(16.dp)
-                        ) {
-                            items(
-                                items = items,
-                                key = { post -> post.id }
-                            ) { post ->
-                                val isFavorite = uiState.favoriteIds.contains(post.id)
-                                PostCard(
-                                    post = post,
-                                    isFavorite = isFavorite,
-                                    onValueChange = {
-                                        viewModel.onToggleFavorite(post = post)
-                                    }
-                                )
-                            }
-                        }
-                    } else {
-                        Column(
-                            modifier = Modifier.fillMaxSize(),
-                            verticalArrangement = Arrangement.Center,
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-                            Icon(
-                                imageVector = Icons.Filled.Info,
-                                contentDescription = null,
-                                modifier = Modifier.size(64.dp),
-                                tint = MaterialTheme.colorScheme.error
+                    when (uiState.selectedTab) {
+                        HomeTab.POSTS -> {
+                            PostFeed(
+                                isFavoriteTab = false,
+                                posts = uiState.posts,
+                                favoriteIds = uiState.favoriteIds,
+                                emptyMessage = "No posts available",
+                                lazyListState = postsListState,
+                                onValueChange = { viewModel.onToggleFavorite(post = it) },
                             )
-                            Spacer(modifier = Modifier.padding(8.dp))
-                            Text(
-                                text = if (uiState.selectedTab == HomeTab.POSTS)
-                                    "No posts available" else "No favorites yet",
-                                style = MaterialTheme.typography.titleMedium,
-                                fontWeight = FontWeight.Medium,
-                                color = MaterialTheme.colorScheme.outline
+                        }
+
+                        HomeTab.FAVORITES -> {
+                            PostFeed(
+                                isFavoriteTab = true,
+                                posts = uiState.favorites,
+                                favoriteIds = uiState.favoriteIds,
+                                emptyMessage = "No favorites yet",
+                                lazyListState = favoritesListState,
+                                onValueChange = { viewModel.onToggleFavorite(post = it) },
                             )
                         }
                     }
@@ -163,8 +148,83 @@ fun HomeScreen(
 }
 
 @Composable
+private fun PostFeed(
+    isFavoriteTab: Boolean,
+    posts: List<Post>,
+    favoriteIds: Set<Int>,
+    emptyMessage: String,
+    lazyListState: LazyListState,
+    onValueChange: (post: Post) -> Unit,
+) {
+    if (posts.isNotEmpty()) {
+        LazyColumn(
+            state = lazyListState,
+            modifier = Modifier.fillMaxSize(),
+            contentPadding = PaddingValues(16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            items(
+                items = posts,
+                key = { post -> post.id }
+            ) { post ->
+                val isFavorite = favoriteIds.contains(post.id)
+                val dismissState = rememberSwipeToDismissBoxState()
+                SwipeToDismissBox(
+                    state = dismissState,
+                    backgroundContent = {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .background(
+                                    color = Color.Red.copy(alpha = 0.2f),
+                                    shape = RoundedCornerShape(12.dp)
+                                )
+                                .padding(horizontal = 20.dp),
+                        )
+                    },
+                    gesturesEnabled = isFavoriteTab,
+                    onDismiss = {
+                        onValueChange(post)
+                    }
+                ) {
+                    PostCard(
+                        post = post,
+                        isFavoriteTab = isFavoriteTab,
+                        isFavorite = isFavorite,
+                        onValueChange = {
+                            onValueChange(post)
+                        }
+                    )
+                }
+            }
+        }
+    } else {
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Icon(
+                imageVector = Icons.Filled.Info,
+                contentDescription = null,
+                modifier = Modifier.size(64.dp),
+                tint = MaterialTheme.colorScheme.error
+            )
+            Spacer(modifier = Modifier.padding(8.dp))
+            Text(
+                text = emptyMessage,
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Medium,
+                color = MaterialTheme.colorScheme.outline
+            )
+        }
+    }
+}
+
+@Composable
 private fun PostCard(
     modifier: Modifier = Modifier,
+    isFavoriteTab: Boolean,
     post: Post,
     isFavorite: Boolean,
     onValueChange: () -> Unit,
@@ -173,8 +233,8 @@ private fun PostCard(
         modifier = modifier
             .fillMaxWidth()
             .shadow(
-                elevation = 16.dp,
-                shape = RoundedCornerShape(16.dp),
+                elevation = 12.dp,
+                shape = RoundedCornerShape(12.dp),
                 clip = false
             ),
         colors = CardDefaults.cardColors().copy(containerColor = Color.White),
@@ -189,18 +249,20 @@ private fun PostCard(
                     modifier = Modifier.weight(1f),
                     style = MaterialTheme.typography.titleSmall
                 )
-                Spacer(modifier = Modifier.padding(4.dp))
-                Icon(
-                    modifier = Modifier
-                        .clickable(
-                            onClick = onValueChange,
-                            interactionSource = remember { MutableInteractionSource() },
-                            indication = ripple(bounded = false)
-                        ),
-                    imageVector = if (isFavorite) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
-                    contentDescription = null,
-                    tint = Color.Red
-                )
+                if (!isFavoriteTab) {
+                    Spacer(modifier = Modifier.padding(4.dp))
+                    Icon(
+                        modifier = Modifier
+                            .clickable(
+                                onClick = onValueChange,
+                                interactionSource = remember { MutableInteractionSource() },
+                                indication = ripple(bounded = false)
+                            ),
+                        imageVector = if (isFavorite) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
+                        contentDescription = null,
+                        tint = Color.Red
+                    )
+                }
             }
             HorizontalDivider(
                 modifier = Modifier.padding(vertical = 8.dp),
