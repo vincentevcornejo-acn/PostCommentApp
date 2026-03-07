@@ -1,6 +1,8 @@
 package com.codingchallenge.postcommentapp.di
 
+import com.codingchallenge.postcommentapp.data.repositories.LoginSessionRepositoryImpl
 import com.codingchallenge.postcommentapp.data.repositories.PostCommentRepositoryImpl
+import com.codingchallenge.postcommentapp.domain.repositories.LoginSessionRepository
 import com.codingchallenge.postcommentapp.domain.repositories.PostCommentRepository
 import dagger.Binds
 import dagger.Module
@@ -18,4 +20,9 @@ abstract class RepositoryModule {
         impl: PostCommentRepositoryImpl
     ): PostCommentRepository
 
+    @Binds
+    @Singleton
+    abstract fun bindLoginSessionRepository(
+        impl: LoginSessionRepositoryImpl
+    ): LoginSessionRepository
 }

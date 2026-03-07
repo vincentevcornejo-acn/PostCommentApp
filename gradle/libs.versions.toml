@@ -35,6 +35,9 @@ gson = "2.13.2"
 # Room
 room = "2.8.4"
 
+# DataStore
+dataStore = "1.1.1"
+
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
@@ -78,6 +81,9 @@ com-squareup-okhttp3-loggingInterceptor = { group = "com.squareup.okhttp3", name
 androidx-room-roomRuntime = {group = "androidx.room", name = "room-runtime", version.ref = "room"}
 androidx-room-roomCompiler = { group = "androidx.room", name = "room-compiler", version.ref = "room"}
 androidx-room-roomKtx = { group = "androidx.room", name = "room-ktx", version.ref = "room"}
+
+# DataStore
+androidx-datastore-dataStorePreferences = { group = "androidx.datastore", name = "datastore-preferences", version.ref = "dataStore" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

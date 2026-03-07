@@ -7,5 +7,6 @@ data class HomeScreenUiState(
     val isLoading: Boolean = false,
     val errorMessage: String? = null,
     val posts: List<Post> = emptyList(),
-    val favorites: List<Post> = emptyList()
+    val favorites: List<Post> = emptyList(),
+    val favoriteIds: Set<Int> = emptySet(),
 )

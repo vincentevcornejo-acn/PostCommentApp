@@ -1,6 +1,5 @@
 package com.codingchallenge.postcommentapp.presenter.screens.home
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.codingchallenge.postcommentapp.domain.model.Post
@@ -8,9 +7,10 @@ import com.codingchallenge.postcommentapp.domain.usecases.AddFavoritePostUseCase
 import com.codingchallenge.postcommentapp.domain.usecases.DeleteFavoritePostUseCase
 import com.codingchallenge.postcommentapp.domain.usecases.FetchPostsUseCase
 import com.codingchallenge.postcommentapp.domain.usecases.GetFavoritePostsUseCase
+import com.codingchallenge.postcommentapp.domain.usecases.LogoutUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.flow.onStart
@@ -23,15 +23,22 @@ class HomeScreenViewModel @Inject constructor(
     private val fetchPostsUseCase: FetchPostsUseCase,
     private val getFavoritePostsUseCase: GetFavoritePostsUseCase,
     private val addFavoritePostUseCase: AddFavoritePostUseCase,
-    private val deleteFavoritePostUseCase: DeleteFavoritePostUseCase
+    private val deleteFavoritePostUseCase: DeleteFavoritePostUseCase,
+    private val logoutUseCase: LogoutUseCase
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(HomeScreenUiState())
-    val uiState: StateFlow<HomeScreenUiState> = _uiState
+    val uiState = _uiState.asStateFlow()
 
     init {
         getFavoritePosts()
         fetchPosts()
+    }
+
+    fun logout() {
+        viewModelScope.launch {
+            logoutUseCase()
+        }
     }
 
     fun selectTab(tab: HomeTab) {
@@ -43,33 +50,45 @@ class HomeScreenViewModel @Inject constructor(
             fetchPostsUseCase()
                 .onStart {
                     _uiState.update { it.copy(isLoading = true, errorMessage = null) }
-                    Log.d("HomeScreenViewModel --- start", "loading:: ${uiState.value.isLoading}")
                 }.catch { e ->
                     _uiState.update { it.copy(errorMessage = e.message ?: "Unknown error") }
-                    Log.d("HomeScreenViewModel --- catch", "error:: ${uiState.value.errorMessage}")
                 }.onCompletion {
                     _uiState.update { it.copy(isLoading = false) }
-                    Log.d(
-                        "HomeScreenViewModel --- completion",
-                        "loading:: ${uiState.value.isLoading}"
-                    )
                 }.collect { posts ->
                     _uiState.update { it.copy(posts = posts) }
-                    Log.d("HomeScreenViewModel --- collect", "size:: ${uiState.value.posts.size}")
                 }
         }
     }
 
-    fun getFavoritePosts(){
+    fun getFavoritePosts() {
         viewModelScope.launch {
-            getFavoritePostsUseCase().collect{ posts ->
-                _uiState.update { it.copy(favorites = posts) }
-            }
+            getFavoritePostsUseCase()
+                .catch { e ->
+                    _uiState.update { it.copy(errorMessage = e.message ?: "Unknown error") }
+                }
+                .collect { favoritePosts ->
+                    _uiState.update { currentState ->
+                        currentState.copy(
+                            favorites = favoritePosts,
+                            favoriteIds = favoritePosts.map { it.id }.toSet()
+                        )
+                    }
+                }
         }
     }
-    fun onToggleFavorite(isFavorite: Boolean, post: Post) {
+
+    fun onToggleFavorite(post: Post) {
         viewModelScope.launch {
-            if (isFavorite) deleteFavoritePostUseCase(post.id) else addFavoritePostUseCase(post)
+            val isFavorite = _uiState.value.favoriteIds.contains(post.id)
+            try {
+                if (isFavorite) {
+                    deleteFavoritePostUseCase(post.id)
+                } else {
+                    addFavoritePostUseCase(post)
+                }
+            } catch (e: Exception) {
+                _uiState.update { it.copy(errorMessage = e.message ?: "Unknown error") }
+            }
         }
     }
 }
