@@ -35,6 +35,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -43,6 +44,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.codingchallenge.postcommentapp.domain.model.Post
@@ -57,10 +59,14 @@ fun HomeScreen(
         modifier = Modifier
             .statusBarsPadding()
             .navigationBarsPadding(),
+        containerColor = Color.Transparent,
         topBar = {
             TopAppBar(
                 title = {
-                    Text(text = "Posts", style = MaterialTheme.typography.titleLarge)
+                    Text(
+                        text = "Home",
+                        style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
+                    )
                 },
                 actions = {
                     IconButton(
@@ -73,19 +79,27 @@ fun HomeScreen(
                             contentDescription = null
                         )
                     }
-                }
+                },
+                colors = TopAppBarDefaults.topAppBarColors()
+                    .copy(containerColor = Color.Transparent)
             )
         }
     ) { innerPadding ->
         Column(modifier = Modifier.padding(innerPadding)) {
             PrimaryTabRow(
-                selectedTabIndex = uiState.selectedTab.ordinal
+                selectedTabIndex = uiState.selectedTab.ordinal,
+                containerColor = Color.Transparent,
             ) {
                 HomeTab.entries.forEach { tab ->
                     Tab(
                         selected = uiState.selectedTab == tab,
                         onClick = { viewModel.selectTab(tab) },
-                        text = { Text(tab.title) }
+                        text = {
+                            Text(
+                                text = tab.title,
+                                style = MaterialTheme.typography.titleMedium
+                            )
+                        }
                     )
                 }
             }
@@ -130,13 +144,14 @@ fun HomeScreen(
                                 imageVector = Icons.Filled.Info,
                                 contentDescription = null,
                                 modifier = Modifier.size(64.dp),
-                                tint = MaterialTheme.colorScheme.outlineVariant
+                                tint = MaterialTheme.colorScheme.error
                             )
                             Spacer(modifier = Modifier.padding(8.dp))
                             Text(
                                 text = if (uiState.selectedTab == HomeTab.POSTS)
                                     "No posts available" else "No favorites yet",
-                                style = MaterialTheme.typography.bodyLarge,
+                                style = MaterialTheme.typography.titleMedium,
+                                fontWeight = FontWeight.Medium,
                                 color = MaterialTheme.colorScheme.outline
                             )
                         }

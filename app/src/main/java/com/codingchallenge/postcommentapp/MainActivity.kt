@@ -10,7 +10,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.navigation.compose.rememberNavController
+import com.codingchallenge.postcommentapp.presenter.components.AppBackground
 import com.codingchallenge.postcommentapp.presenter.navigation.AppNavHost
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -27,12 +29,14 @@ class MainActivity : ComponentActivity() {
         setContent {
             MaterialTheme {
                 Scaffold(
+                    contentColor = Color.Transparent,
                     contentWindowInsets = WindowInsets(0, 0, 0, 0),
                 ) { innerPadding ->
-                    AppNavHost(
-                        modifier = Modifier.padding(innerPadding),
-                        navHostController = rememberNavController()
-                    )
+                    AppBackground(modifier = Modifier.padding(innerPadding)) {
+                        AppNavHost(
+                            navHostController = rememberNavController()
+                        )
+                    }
                 }
             }
         }
