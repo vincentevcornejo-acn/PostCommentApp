@@ -3,6 +3,7 @@ package com.codingchallenge.postcommentapp.presenter.screens.home
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -11,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -19,8 +21,10 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -56,7 +60,7 @@ fun HomeScreen(
         topBar = {
             TopAppBar(
                 title = {
-                    Text(text = "Login", style = MaterialTheme.typography.titleLarge)
+                    Text(text = "Posts", style = MaterialTheme.typography.titleLarge)
                 },
                 actions = {
                     IconButton(
@@ -74,11 +78,10 @@ fun HomeScreen(
         }
     ) { innerPadding ->
         Column(modifier = Modifier.padding(innerPadding)) {
-            // Tab Row
             PrimaryTabRow(
                 selectedTabIndex = uiState.selectedTab.ordinal
             ) {
-                HomeTab.entries.forEachIndexed { index, tab ->
+                HomeTab.entries.forEach { tab ->
                     Tab(
                         selected = uiState.selectedTab == tab,
                         onClick = { viewModel.selectTab(tab) },
@@ -86,27 +89,58 @@ fun HomeScreen(
                     )
                 }
             }
-            LazyColumn(
+
+            Box(
                 modifier = Modifier.fillMaxSize(),
-                contentPadding = PaddingValues(16.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                val items = when (uiState.selectedTab) {
-                    HomeTab.POSTS -> uiState.posts
-                    HomeTab.FAVORITES -> uiState.favorites
-                }
-                items(
-                    items = items,
-                    key = { post -> post.id }
-                ) { post ->
-                    val isFavorite = uiState.favoriteIds.contains(post.id)
-                    PostCard(
-                        post = post,
-                        isFavorite = isFavorite,
-                        onValueChange = {
-                            viewModel.onToggleFavorite(post = post)
+                if (uiState.isLoading) {
+                    CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+                } else {
+                    val items = when (uiState.selectedTab) {
+                        HomeTab.POSTS -> uiState.posts
+                        HomeTab.FAVORITES -> uiState.favorites
+                    }
+                    if (items.isNotEmpty()) {
+                        LazyColumn(
+                            modifier = Modifier.fillMaxSize(),
+                            contentPadding = PaddingValues(16.dp),
+                            verticalArrangement = Arrangement.spacedBy(16.dp)
+                        ) {
+                            items(
+                                items = items,
+                                key = { post -> post.id }
+                            ) { post ->
+                                val isFavorite = uiState.favoriteIds.contains(post.id)
+                                PostCard(
+                                    post = post,
+                                    isFavorite = isFavorite,
+                                    onValueChange = {
+                                        viewModel.onToggleFavorite(post = post)
+                                    }
+                                )
+                            }
                         }
-                    )
+                    } else {
+                        Column(
+                            modifier = Modifier.fillMaxSize(),
+                            verticalArrangement = Arrangement.Center,
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Icon(
+                                imageVector = Icons.Filled.Info,
+                                contentDescription = null,
+                                modifier = Modifier.size(64.dp),
+                                tint = MaterialTheme.colorScheme.outlineVariant
+                            )
+                            Spacer(modifier = Modifier.padding(8.dp))
+                            Text(
+                                text = if (uiState.selectedTab == HomeTab.POSTS)
+                                    "No posts available" else "No favorites yet",
+                                style = MaterialTheme.typography.bodyLarge,
+                                color = MaterialTheme.colorScheme.outline
+                            )
+                        }
+                    }
                 }
             }
         }
@@ -163,5 +197,4 @@ private fun PostCard(
             )
         }
     }
-
 }

@@ -38,13 +38,20 @@ room = "2.8.4"
 # DataStore
 dataStore = "1.1.1"
 
+# Unit Test
+mockitoKotlin = "5.4.0"
+kotlinxCoroutinesTest = "1.10.0"
+
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
-junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
+
+# Unit Test
+junit = { group = "junit", name = "junit", version.ref = "junit" }
+
 
 # AndroidX
 androidx-activityCompose = { group = "androidx.activity", name = "activity-compose", version.ref = "activityCompose" }
@@ -84,6 +91,10 @@ androidx-room-roomKtx = { group = "androidx.room", name = "room-ktx", version.re
 
 # DataStore
 androidx-datastore-dataStorePreferences = { group = "androidx.datastore", name = "datastore-preferences", version.ref = "dataStore" }
+
+# Unit Test
+org-mockito-kotlin-mockitoKotlin = { group = "org.mockito.kotlin", name = "mockito-kotlin", version.ref = "mockitoKotlin" }
+org-jetbrains-kotlinx-kotlinxCoroutinesTest = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "kotlinxCoroutinesTest" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

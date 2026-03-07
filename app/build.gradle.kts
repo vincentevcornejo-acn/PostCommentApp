@@ -68,6 +68,8 @@ dependencies {
     implementation(libs.androidx.lifecycleViewModelCompose)
     implementation(libs.material)
     testImplementation(libs.junit)
+    testImplementation(libs.org.mockito.kotlin.mockitoKotlin)
+    testImplementation(libs.org.jetbrains.kotlinx.kotlinxCoroutinesTest)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
 

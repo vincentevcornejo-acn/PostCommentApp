@@ -51,11 +51,9 @@ class HomeScreenViewModel @Inject constructor(
                 .onStart {
                     _uiState.update { it.copy(isLoading = true, errorMessage = null) }
                 }.catch { e ->
-                    _uiState.update { it.copy(errorMessage = e.message ?: "Unknown error") }
-                }.onCompletion {
-                    _uiState.update { it.copy(isLoading = false) }
+                    _uiState.update { it.copy(isLoading = false, errorMessage = e.message ?: "Unknown error") }
                 }.collect { posts ->
-                    _uiState.update { it.copy(posts = posts) }
+                    _uiState.update { it.copy(isLoading = false, posts = posts) }
                 }
         }
     }

@@ -4,8 +4,8 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.codingchallenge.postcommentapp.domain.model.Post
 
-@Entity(tableName = "all_posts")
-data class PostEntity(
+@Entity(tableName = "favorite_posts")
+data class FavoritePostEntity(
 
     @PrimaryKey
     val id: Int,
@@ -14,7 +14,7 @@ data class PostEntity(
     val body: String
 ) {
     companion object {
-        fun fromPost(post: Post): PostEntity = PostEntity(
+        fun fromFavoritePost(post: Post): FavoritePostEntity = FavoritePostEntity(
             id = post.id,
             userId = post.userId,
             title = post.title,
@@ -23,7 +23,7 @@ data class PostEntity(
     }
 }
 
-fun PostEntity.toPost() = Post(
+fun FavoritePostEntity.toPost() = Post(
     id = id,
     userId = userId,
     title = title,
