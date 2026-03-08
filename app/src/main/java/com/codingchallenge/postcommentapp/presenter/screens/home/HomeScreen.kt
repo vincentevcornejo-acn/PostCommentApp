@@ -53,6 +53,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.codingchallenge.postcommentapp.domain.model.Post
+import com.codingchallenge.postcommentapp.presenter.extensions.conditional
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -256,20 +257,20 @@ private fun PostCard(
                     modifier = Modifier.weight(1f),
                     style = MaterialTheme.typography.titleSmall
                 )
-                if (!isFavoriteTab) {
-                    Spacer(modifier = Modifier.padding(4.dp))
-                    Icon(
-                        modifier = Modifier
-                            .clickable(
+                Spacer(modifier = Modifier.padding(4.dp))
+                Icon(
+                    modifier = Modifier
+                        .conditional(condition = !isFavoriteTab) {
+                            this.clickable(
                                 onClick = onValueChange,
                                 interactionSource = remember { MutableInteractionSource() },
                                 indication = ripple(bounded = false)
-                            ),
-                        imageVector = if (isFavorite) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
-                        contentDescription = null,
-                        tint = Color.Red
-                    )
-                }
+                            )
+                        },
+                    imageVector = if (isFavorite) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
+                    contentDescription = null,
+                    tint = Color.Red
+                )
             }
             HorizontalDivider(
                 modifier = Modifier.padding(vertical = 8.dp),
