@@ -10,4 +10,4 @@
 
 ## Demo Video
 
-[Watch the demo](docs/demo.webm)
+https://github.com/user-attachments/assets/03c97db5-cec9-4b06-85ee-b10d323bc81e
