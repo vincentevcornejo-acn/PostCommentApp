@@ -23,14 +23,17 @@ class PostCommentRepositoryImpl @Inject constructor(
     // remote
     override fun fetchPosts(): Flow<List<Post>> = flow {
         val cachedPosts = dao.getAllCachedPosts().firstOrNull() ?: emptyList()
-        emit(cachedPosts.map { it.toPost() })
+
+        if (cachedPosts.isNotEmpty()) {
+            emit(cachedPosts.map { it.toPost() })
+        }
 
         try {
             val remotePosts = api.fetchPosts().toDomainPosts()
             val entities = remotePosts.map { PostEntity.fromPost(it) }
             dao.clearCache()
             dao.insertPosts(entities)
-        }catch (e: Exception){
+        } catch (e: Exception) {
             // if the remote api fails, emit the cached posts
         }
         emitAll(dao.getAllCachedPosts().map { list -> list.map { it.toPost() } })

@@ -1,8 +1,9 @@
-#**Android Developer Role Assessment**
+# Android Developer Role Assessment
 
-####Technical Specs
-1. The app is written in Kotlin.
-2. The project is using Clear Architecture + MVVM design pattern.
-3. Hilt is used for the dependency injection.
-4. Retrofit and Gson is was used for the network calls.
-5. Coroutines and StateFlow was used fir the reactive programming.
+## Technical Specifications
+
+- The application is developed using **Kotlin**.
+- The project follows **Clean Architecture** with the **MVVM (Model–View–ViewModel)** design pattern.
+- **Hilt** is used for dependency injection.
+- **Retrofit** and **Gson** are used for handling network requests and JSON parsing.
+- **Kotlin Coroutines** and **StateFlow** are used for asynchronous and reactive programming.

@@ -36,7 +36,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.PrimaryTabRow
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SwipeToDismissBox
-import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -156,7 +155,9 @@ private fun PostFeed(
     lazyListState: LazyListState,
     onValueChange: (post: Post) -> Unit,
 ) {
-    if (posts.isNotEmpty()) {
+    if (posts.isEmpty()) {
+        EmptyState(message = emptyMessage)
+    } else {
         LazyColumn(
             state = lazyListState,
             modifier = Modifier.fillMaxSize(),
@@ -198,26 +199,32 @@ private fun PostFeed(
                 }
             }
         }
-    } else {
-        Column(
-            modifier = Modifier.fillMaxSize(),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Icon(
-                imageVector = Icons.Filled.Info,
-                contentDescription = null,
-                modifier = Modifier.size(64.dp),
-                tint = MaterialTheme.colorScheme.error
-            )
-            Spacer(modifier = Modifier.padding(8.dp))
-            Text(
-                text = emptyMessage,
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Medium,
-                color = MaterialTheme.colorScheme.outline
-            )
-        }
+    }
+}
+
+@Composable
+private fun EmptyState(
+    modifier: Modifier = Modifier,
+    message: String,
+) {
+    Column(
+        modifier = modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Icon(
+            imageVector = Icons.Filled.Info,
+            contentDescription = null,
+            modifier = Modifier.size(64.dp),
+            tint = MaterialTheme.colorScheme.error
+        )
+        Spacer(modifier = Modifier.padding(8.dp))
+        Text(
+            text = message,
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.Medium,
+            color = MaterialTheme.colorScheme.outline
+        )
     }
 }
 
