@@ -7,3 +7,7 @@
 - **Hilt** is used for dependency injection.
 - **Retrofit** and **Gson** are used for handling network requests and JSON parsing.
 - **Kotlin Coroutines** and **StateFlow** are used for asynchronous and reactive programming.
+
+## Demo Video
+
+[Watch the demo](docs/demo.webm)
