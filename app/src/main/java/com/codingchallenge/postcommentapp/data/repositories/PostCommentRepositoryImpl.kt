@@ -8,10 +8,12 @@ import com.codingchallenge.postcommentapp.data.remote.PostCommentApi
 import com.codingchallenge.postcommentapp.data.remote.dto.toDomainPosts
 import com.codingchallenge.postcommentapp.domain.model.Post
 import com.codingchallenge.postcommentapp.domain.repositories.PostCommentRepository
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
@@ -37,7 +39,7 @@ class PostCommentRepositoryImpl @Inject constructor(
             // if the remote api fails, emit the cached posts
         }
         emitAll(dao.getAllCachedPosts().map { list -> list.map { it.toPost() } })
-    }
+    }.flowOn(Dispatchers.IO)
 
     // database
     override fun getFavoritePosts(): Flow<List<Post>> =
